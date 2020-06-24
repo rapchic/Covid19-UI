@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,14 +14,13 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author Mo
  */
-public class SearchData1 {
+public class SearchData {
     
     private RestTemplate restTemplate = new RestTemplate();
     
     private String URI="http://localhost";
     private String Port="8080";
     private String Path="";
-    
     
     public String[] getAllCountryList(){
         String ResPath="/country/list/";

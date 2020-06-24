@@ -34,7 +34,8 @@ import java.util.SortedMap;
 @Theme(value = Lumo.class)
 public class MainView extends SplitLayout{
     
-    private SearchData1 searchData;
+    private SearchData searchData;
+    
     
     private Country selectedCountry=null;
     private LocalDate SelectedFromDate=null;
@@ -57,7 +58,7 @@ public class MainView extends SplitLayout{
     
     public MainView(){
         
-        searchData=new SearchData1();
+        searchData=new SearchData();
         setOrientation(Orientation.VERTICAL);
         
         firstHalf=new SplitLayout();
