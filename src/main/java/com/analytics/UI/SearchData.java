@@ -18,34 +18,50 @@ public class SearchData {
     
     private RestTemplate restTemplate = new RestTemplate();
     
-    private String URI="http://localhost";
-    private String Port="8080";
+    private String Host="http://localhost:8080";
     private String Path="";
+    
+    
+    public String getHost() {
+        return Host;
+    }
+
+    public void setHost(String Port) {
+        this.Host = Port;
+    }
+    
+    
+    public String tryConnecting(String port){
+        String ResPath="/hello/";
+        String ping = restTemplate.getForObject(Host+Path+ResPath, String.class);
+        
+        return ping;
+    }
     
     public String[] getAllCountryList(){
         String ResPath="/country/list/";
-        String[] countriesNames = restTemplate.getForObject(URI+":"+Port+Path+ResPath, String[].class);
+        String[] countriesNames = restTemplate.getForObject(Host+Path+ResPath, String[].class);
         
         return countriesNames;
     }
     
     public Country[] getAllCountries(){
         String ResPath="/country/all/";
-        Country[] countriesData = restTemplate.getForObject(URI+":"+Port+Path+ResPath, Country[].class);
+        Country[] countriesData = restTemplate.getForObject(Host+Path+ResPath, Country[].class);
         
         return countriesData;
     }
     
     public Country getCountry(Request request){
         String ResPath="/country/";
-        Country country = restTemplate.getForObject(URI+":"+Port+Path+ResPath, Country.class);
+        Country country = restTemplate.getForObject(Host+Path+ResPath, Country.class);
         
         return country;
     }
     
     public Collection<LocalDate> getAllDates(){
         String ResPath="/dates/";
-        LocalDate[] dates = restTemplate.getForObject(URI+":"+Port+Path+ResPath, LocalDate[].class);
+        LocalDate[] dates = restTemplate.getForObject(Host+Path+ResPath, LocalDate[].class);
         Collection<LocalDate> datesAL = Arrays.asList(dates);
         return datesAL;
     }
@@ -53,28 +69,28 @@ public class SearchData {
     
     public Data[] getDataByCountry(Request request){
         String ResPath="/country/data/";
-        Data[] countryData = restTemplate.postForObject(URI+":"+Port+Path+ResPath,request, Data[].class);
+        Data[] countryData = restTemplate.postForObject(Host+Path+ResPath,request, Data[].class);
         
         return countryData;
     }
     
     public Data[] getDataFromDateToDate(Request request){
         String ResPath="/country/data/dates/";
-        Data[] countryData = restTemplate.postForObject(URI+":"+Port+Path+ResPath,request, Data[].class);
+        Data[] countryData = restTemplate.postForObject(Host+Path+ResPath,request, Data[].class);
         
         return countryData;
     }
     
     public Data[] getAllDataByDate(Request request){
         String ResPath="/data/date/";
-        Data[] countriesData = restTemplate.postForObject(URI+":"+Port+Path+ResPath,request, Data[].class);
+        Data[] countriesData = restTemplate.postForObject(Host+Path+ResPath,request, Data[].class);
         
         return countriesData;
     }
     
     public Data getCountryDataByDate(Request request){
         String ResPath="/country/data/date/";
-        Data countryData = restTemplate.postForObject(URI+":"+Port+Path+ResPath,request, Data.class);
+        Data countryData = restTemplate.postForObject(Host+Path+ResPath,request, Data.class);
         
         return countryData;
     }

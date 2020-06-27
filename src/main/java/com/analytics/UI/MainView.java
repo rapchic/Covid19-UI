@@ -1,16 +1,31 @@
 
 package com.analytics.UI;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.H5;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Input;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeButton;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.BoxSizing;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
@@ -35,7 +50,8 @@ import java.util.SortedMap;
 public class MainView extends SplitLayout{
     
     private SearchData searchData;
-    
+    private String portLabel="";
+    private MenuBar menuBar;
     
     private Country selectedCountry=null;
     private LocalDate SelectedFromDate=null;
@@ -43,9 +59,10 @@ public class MainView extends SplitLayout{
     private Function selectedFunction;
     
     private SplitLayout firstHalf,secondHalf,lowTopThird,lowBotThird;
-    private HorizontalLayout headTopLayout,headBotLayout;
+    private HorizontalLayout headBotLayout,headMenuLayout;
     private HorizontalLayout tailTopLayout,tailBotLayout;
     private HorizontalLayout dataLayout,datasetLayout;
+    private HorizontalLayout headTopLayout;
     
     private RadioButtonGroup<Function> radioGroup;
     ComboBox<Country> comboBox;
@@ -67,6 +84,7 @@ public class MainView extends SplitLayout{
         secondHalf=new SplitLayout();
         secondHalf.setOrientation(Orientation.VERTICAL);
         
+        
         lowTopThird=new SplitLayout();
         lowTopThird.setOrientation(Orientation.VERTICAL);
         
@@ -75,6 +93,7 @@ public class MainView extends SplitLayout{
         
         headTopLayout=new HorizontalLayout();
         headBotLayout=new HorizontalLayout();
+        headMenuLayout=new HorizontalLayout();
         
         tailTopLayout=new HorizontalLayout();
         tailBotLayout=new HorizontalLayout();
@@ -82,8 +101,13 @@ public class MainView extends SplitLayout{
         datasetLayout=new HorizontalLayout();
         dataLayout=new HorizontalLayout();
         
+        
+        //this.getStyle().set("border", "1px solid #909497");
+        
         headTopLayout.setWidth("80%");
         headTopLayout.getStyle().set("border", "5px solid #19bc9b");
+        
+        headMenuLayout.setWidth("80%");
   
         headBotLayout.setWidth("80%");
         headBotLayout.getStyle().set("border", "5px solid #19bc9b");
@@ -107,7 +131,7 @@ public class MainView extends SplitLayout{
         lowBotThird.getStyle().set("padding", "0.5%");
         lowTopThird.getStyle().set("padding", "0.5%");
         
-        firstHalf.addToPrimary(headTopLayout);
+        firstHalf.addToPrimary(headMenuLayout,headTopLayout);
         firstHalf.addToSecondary(headBotLayout);
         secondHalf.addToPrimary(tailTopLayout);
         secondHalf.addToSecondary(tailBotLayout);
@@ -120,17 +144,153 @@ public class MainView extends SplitLayout{
         
         addToPrimary(firstHalf);
         addToSecondary(lowTopThird);
+        headBotLayout.addAndExpand(new Div());
         
-        init();
+        makeVisible(false);
+        
+        addTopMenu();
+        addHeadTop();
+    }
+    
+    
+    private boolean connect(String port){
+        
+        try{
+            String ping=searchData.tryConnecting(port);
+            if (ping.contains("hello")){
+                return true;
+            }else{
+                return false;
+            }
+        }catch(Exception ex){
+            return false;
+        }
+    }
+    
+        
+    private void resetPanel(){
+        
+        headBotLayout.removeAll();
+        tailTopLayout.removeAll();
+        tailBotLayout.removeAll();
+        datasetLayout.removeAll();
+        dataLayout.removeAll();
+    }
+    
+    private void makeVisible(boolean arg){
+        
+        secondHalf.setVisible(arg);
+        lowTopThird.setVisible(arg);
+        lowBotThird.setVisible(arg);
+    }
+    
+    private void addTopMenu(){
+        Dialog dialog = new Dialog(new Label("Host:Port: "));
+        dialog.setCloseOnEsc(false);
+        dialog.setCloseOnOutsideClick(false);
+        
+        Label msgLabel=new Label();
+        Input input = new Input();
+        input.setValue("http://localhost:8080");
+        
+        NativeButton connectButton = new NativeButton("Connect", event -> {
+            msgLabel.setText("Connecting..");
+            if(connect(input.getValue())){
+            searchData.setHost(input.getValue());
+            msgLabel.setText("Connected");
+            Notification.show("Connected to the server");
+            init();
+            
+            dialog.close();
+            }else{
+                msgLabel.setText("Failed");
+                Notification.show("Server not responding");
+            }
+            
+        });
+        NativeButton closeButton = new NativeButton("Cancel", event -> {
+            msgLabel.setText("Cancelled...");
+            dialog.close();
+        });
+        
+        dialog.add(input,closeButton,connectButton);
+        menuBar = new MenuBar();
+        menuBar.addItem("Connect", e -> dialog.open());
+        menuBar.addItem("Reset", e -> {resetPanel();makeVisible(false);});
+        menuBar.addItem("Connected to: "+ searchData.getHost()).setEnabled(false);
+        headMenuLayout.add(menuBar);
     }
     
     private void addHeadTop(){
+        
         H2 header = new H2("Covid-19 Data Analytic Web Application");
         header.getElement().getStyle().set("text-align","center");
-        header.getElement().getStyle().set("padding","5px");
-        header.getElement().getStyle().set("color","purple");
-        headTopLayout.addAndExpand(header);
-        headTopLayout.getStyle().set("border", "5px solid #19bc9b");
+        header.getElement().getStyle().set("color","#0E6251");
+        
+        VerticalLayout v1=new VerticalLayout();
+        HorizontalLayout H1=new HorizontalLayout();
+        
+        H1.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        H1.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
+        
+        v1.setDefaultHorizontalComponentAlignment(FlexComponent.Alignment.STRETCH);
+        v1.getElement().getStyle().set("background-color","#F2F4F4");
+        
+        VerticalLayout v11=new VerticalLayout();
+        VerticalLayout v12=new VerticalLayout();
+        VerticalLayout v13=new VerticalLayout();
+        v11.setAlignItems(FlexComponent.Alignment.CENTER);
+        v12.setAlignItems(FlexComponent.Alignment.CENTER);
+        v13.setAlignItems(FlexComponent.Alignment.CENTER);
+        
+        Icon Clogo = new Icon(VaadinIcon.CODE);
+        Clogo.setSize("30px");
+        Clogo.setColor("orange");
+        
+        Icon Tlogo = new Icon(VaadinIcon.TWITTER);
+        Tlogo.setSize("30px");
+        Tlogo.setColor("orange");
+        
+        Icon Blogo = new Icon(VaadinIcon.BROWSER);
+        Blogo.setSize("30px");
+        Blogo.setColor("orange");
+        
+        Label L1=new Label("Github.com/mohaghighi");
+        Label L2=new Label("Developer.ibm.com");
+        Label L3=new Label("Twitter.com/mohaghighi");
+        
+        L1.getElement().getStyle().set("text-align","center");
+        L2.getElement().getStyle().set("text-align","center");
+        L3.getElement().getStyle().set("text-align","center");
+        
+        L1.getElement().getStyle().set("color","orange");
+        L2.getElement().getStyle().set("color","orange");
+        L3.getElement().getStyle().set("color","orange");
+        
+        v11.getElement().getStyle().set("background-color","#0E6251");
+        v11.getStyle().set("border", "2px solid #D7BDE2");
+        
+        v12.getElement().getStyle().set("background-color","#0E6251");
+        v12.getStyle().set("border", "2px solid #D7BDE2");
+        
+        v13.getElement().getStyle().set("background-color","#0E6251");
+        v13.getStyle().set("border", "2px solid #D7BDE2");
+        
+        v11.add(Clogo,L1);
+        v12.add(Blogo,L2);
+        v13.add(Tlogo,L3);
+        
+        
+        
+        v11.getElement().addEventListener("click", e -> getUI().get().getPage().open("https://github.com/mohaghighi","_blank"));
+        v12.getElement().addEventListener("click", e -> getUI().get().getPage().open("https://developer.ibm.com","_blank"));
+        v13.getElement().addEventListener("click", e -> getUI().get().getPage().open("https://twitter.com/mohaghighi","_blank"));
+        
+        H1.add(v11,v12,v13);
+        v1.add(header,H1);
+        
+        headTopLayout.addAndExpand(v1);
+        headTopLayout.getStyle().set("border", "3px solid #19bc9b");
     }
     
     private void addHeadBottom(){
@@ -284,14 +444,18 @@ public class MainView extends SplitLayout{
     }
     
     public void init() {
-        addHeadTop();
+      
         addHeadBottom();
         addTailTop();
         addTailBottom();
         addDataFrame();
-        //addDatasetFrame();
+        makeVisible(true);
+        menuBar.getItems().get(2).setText("Connected To Host: "+searchData.getHost());
+        toDate.setEnabled(false);
+        fromDate.setEnabled(false);
+        comboBox.setEnabled(false);
     }
-    
+
     private List<Function> getFunctions(){
         List<Function> temp=new ArrayList<>();
         
