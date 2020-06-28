@@ -2,10 +2,14 @@
 package com.analytics.UI;
 
 import static com.fasterxml.classmate.types.ResolvedPrimitiveType.all;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
@@ -18,7 +22,7 @@ public class SearchData {
     
     private RestTemplate restTemplate = new RestTemplate();
     
-    private String Host="http://localhost:8080";
+    private String Host="N/A";
     private String Path="";
     
     
@@ -26,16 +30,22 @@ public class SearchData {
         return Host;
     }
 
-    public void setHost(String Port) {
-        this.Host = Port;
+    public void setHost(String Host) {
+        this.Host = Host;
     }
     
-    
-    public String tryConnecting(String port){
+    public String tryConnecting(String Host){
         String ResPath="/hello/";
         String ping = restTemplate.getForObject(Host+Path+ResPath, String.class);
         
         return ping;
+    }
+    
+    public String getSource(){
+        String ResPath="/get/source/";
+        String source = restTemplate.getForObject(Host+Path+ResPath, String.class);
+        
+        return source;
     }
     
     public String[] getAllCountryList(){

@@ -153,10 +153,10 @@ public class MainView extends SplitLayout{
     }
     
     
-    private boolean connect(String port){
+    private boolean connect(String Host){
         
         try{
-            String ping=searchData.tryConnecting(port);
+            String ping=searchData.tryConnecting(Host);
             if (ping.contains("hello")){
                 return true;
             }else{
@@ -175,6 +175,9 @@ public class MainView extends SplitLayout{
         tailBotLayout.removeAll();
         datasetLayout.removeAll();
         dataLayout.removeAll();
+        searchData.setHost("N/A");
+        menuBar.getItems().get(3).setText("Connected to: "+searchData.getHost());
+        
     }
     
     private void makeVisible(boolean arg){
@@ -185,7 +188,7 @@ public class MainView extends SplitLayout{
     }
     
     private void addTopMenu(){
-        Dialog dialog = new Dialog(new Label("Host:Port: "));
+        Dialog dialog = new Dialog(new Label(" HOST : PORT "));
         dialog.setCloseOnEsc(false);
         dialog.setCloseOnOutsideClick(false);
         
@@ -194,14 +197,15 @@ public class MainView extends SplitLayout{
         input.setValue("http://localhost:8080");
         
         NativeButton connectButton = new NativeButton("Connect", event -> {
-            msgLabel.setText("Connecting..");
-            if(connect(input.getValue())){
-            searchData.setHost(input.getValue());
-            msgLabel.setText("Connected");
-            Notification.show("Connected to the server");
-            init();
             
-            dialog.close();
+            msgLabel.setText("Connecting..");
+            
+            if(connect(input.getValue())){
+                searchData.setHost(input.getValue());
+                msgLabel.setText("Connected");
+                Notification.show("Connected to the server");
+                init();
+                dialog.close();
             }else{
                 msgLabel.setText("Failed");
                 Notification.show("Server not responding");
@@ -215,8 +219,9 @@ public class MainView extends SplitLayout{
         
         dialog.add(input,closeButton,connectButton);
         menuBar = new MenuBar();
-        menuBar.addItem("Connect", e -> dialog.open());
+        menuBar.addItem("Connect", e -> {resetPanel();makeVisible(false);dialog.open();});
         menuBar.addItem("Reset", e -> {resetPanel();makeVisible(false);});
+        menuBar.addItem("Source", e -> printNewDataInTA(searchData.getSource()));
         menuBar.addItem("Connected to: "+ searchData.getHost()).setEnabled(false);
         headMenuLayout.add(menuBar);
     }
@@ -450,7 +455,7 @@ public class MainView extends SplitLayout{
         addTailBottom();
         addDataFrame();
         makeVisible(true);
-        menuBar.getItems().get(2).setText("Connected To Host: "+searchData.getHost());
+        menuBar.getItems().get(3).setText("Connected to: "+searchData.getHost());
         toDate.setEnabled(false);
         fromDate.setEnabled(false);
         comboBox.setEnabled(false);
@@ -535,6 +540,7 @@ public class MainView extends SplitLayout{
     //
     
     private void printDataForCountryonDate(Country country,LocalDate date){
+        
         int retData=searchData.getCountryDataByDate(new Request(country.getName(),convertDate(date))).getStat();
         printNewDataInTA(String.valueOf(retData));
     }
