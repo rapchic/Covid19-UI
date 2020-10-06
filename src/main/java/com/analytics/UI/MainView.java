@@ -260,9 +260,9 @@ public class MainView extends SplitLayout{
         Blogo.setSize("30px");
         Blogo.setColor("orange");
         
-        Label L1=new Label("Github.com/mohaghighi");
-        Label L2=new Label("Developer.ibm.com");
-        Label L3=new Label("Twitter.com/mohaghighi");
+        Label L1=new Label("github.com/rapchic");
+        Label L2=new Label("developer.ibm.com");
+        Label L3=new Label("twitter.com/_Debjani");
         
         L1.getElement().getStyle().set("text-align","center");
         L2.getElement().getStyle().set("text-align","center");
@@ -287,9 +287,9 @@ public class MainView extends SplitLayout{
         
         
         
-        v11.getElement().addEventListener("click", e -> getUI().get().getPage().open("https://github.com/mohaghighi","_blank"));
+        v11.getElement().addEventListener("click", e -> getUI().get().getPage().open("https://github.com/rapchic","_blank"));
         v12.getElement().addEventListener("click", e -> getUI().get().getPage().open("https://developer.ibm.com","_blank"));
-        v13.getElement().addEventListener("click", e -> getUI().get().getPage().open("https://twitter.com/mohaghighi","_blank"));
+        v13.getElement().addEventListener("click", e -> getUI().get().getPage().open("https://twitter.com/_Debjani","_blank"));
         
         H1.add(v11,v12,v13);
         v1.add(header,H1);
