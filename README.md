@@ -1,6 +1,6 @@
 # Covid19-UI
 
-This is a companion frontend application to be used with https://github.com/mohaghighi/Covid19-Web-Application.git as part of the multi-part workshop series for building, managing and deploying microservices containerised applicaitons with:
+This is a companion frontend application to be used with https://github.com/rapchic/Covid19-Web-Application as part of the multi-part workshop series for building, managing and deploying microservices containerised applicaitons with:
 - Docker
 - Kubernetes
 - OpenShift
